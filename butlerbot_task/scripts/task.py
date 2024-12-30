@@ -54,14 +54,14 @@ class FoodDeliveryActionServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info("Starting food delivery...")
-        table_number = goal_handle.request.location
+        tables = goal_handle.request.location
+        self.cancellation = False
 
         # Fetch locations
         kitchen_location = get_goal_by_name("kitchen")
         home_location = get_goal_by_name("home")
-        table_location = get_goal_by_name(table_number)
 
-        if not (kitchen_location and home_location and table_location):
+        if not (kitchen_location and home_location):
             self.get_logger().error("Failed to retrieve one or more locations.")
             self.result.success = False
             goal_handle.abort()
@@ -85,31 +85,44 @@ class FoodDeliveryActionServer(Node):
             self.result.success = False
             goal_handle.abort()
             return self.result
-
-        # Proceed to deliver food to table
-        self.feedback.current_status = f"Delivering food to {table_number}"
-        goal_handle.publish_feedback(self.feedback)
-        if not self.navigate_to_pose(table_location):
-            self.get_logger().error(f"Failed to navigate to {table_number}")
-            self.result.success = False
-            goal_handle.abort()
-            return self.result
         
-        # Wait for external confirmation after reaching table with timeout
-        self.feedback.current_status = f"Waiting for confirmation at {table_number}"
-        goal_handle.publish_feedback(self.feedback)
-        if not self.wait_for_confirmation(table_number, timeout=5):
-            self.get_logger().info("No confirmation at table, returning to kitchen")
-            if not self.navigate_to_pose(kitchen_location):
-                self.get_logger().error("Failed to navigate back to kitchen")
+        for table_number in tables:
+            # get table location
+            table_location = get_goal_by_name(table_number)
+            
+            if not table_location:
+                self.get_logger().error(f"Failed to retrieve location of {table_number}")
                 self.result.success = False
                 goal_handle.abort()
                 return self.result
 
-            self.navigate_to_pose(home_location)
-            self.result.success = False
-            goal_handle.abort()
-            return self.result
+            # Proceed to deliver food to table
+            self.feedback.current_status = f"Delivering food to {table_number}"
+            goal_handle.publish_feedback(self.feedback)
+            if not self.navigate_to_pose(table_location):
+                self.get_logger().error(f"Failed to navigate to {table_number}")
+                self.navigate_to_pose(home_location)
+                self.result.success = False
+                goal_handle.abort()
+                return self.result
+            
+            # Wait for external confirmation after reaching table with timeout
+            self.feedback.current_status = f"Waiting for confirmation at {table_number}"
+            goal_handle.publish_feedback(self.feedback)
+            if not self.wait_for_confirmation(table_number, timeout=5):
+                self.get_logger().info("No confirmation at table, moving to next table")
+    
+          
+        if self.cancellation == True:  
+            # Wait for external confirmation after reaching table with timeout
+            self.feedback.current_status = f"Moving to kitchen"
+            goal_handle.publish_feedback(self.feedback)
+            if not self.navigate_to_pose(kitchen_location):
+                self.get_logger().error("Failed to navigate back to kitchen")
+                self.navigate_to_pose(home_location)
+                self.result.success = False
+                goal_handle.abort()
+                return self.result
 
         # Finally, return to home
         self.feedback.current_status = "Returning to home"
@@ -147,7 +160,8 @@ class FoodDeliveryActionServer(Node):
                 return True
             sleep(0.1)  # Small delay to avoid busy waiting
 
-        self.get_logger().error("Confirmation timed out.")
+        self.cancellation = True
+        self.get_logger().error("Order cancelled or Confirmation timed out.")
         return False
     
 

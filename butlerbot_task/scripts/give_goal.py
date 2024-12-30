@@ -24,7 +24,8 @@ class FoodDeliveryActionClient(Node):
 
         # Send the goal asynchronously and define the callbacks
         self._send_goal_future = self._action_client.send_goal_async(
-            goal_msg, feedback_callback=self.feedback_callback
+            goal_msg, 
+            feedback_callback=self.feedback_callback
         )
         self._send_goal_future.add_done_callback(self.goal_response_callback)
 
@@ -54,20 +55,29 @@ class FoodDeliveryActionClient(Node):
             self.get_logger().info("Delivery failed.")
         rclpy.shutdown()
 
+    def send_goals_for_tables(self, tables):
+        self.send_goal(tables)
+        rclpy.spin(self)
+
 
 def main(args=None):
     rclpy.init(args=args)
     
-    # Ensure a table argument is provided
+    # Ensure at least one table argument is provided
     if len(sys.argv) < 2:
-        print("Usage: ros2 run butlerbot_task give_goal.py <table>")
+        print("Usage: ros2 run butlerbot_task give_goal.py <table1> [<table2> ... <tableN>]")
         print("Options: table1, table2, table3")
         sys.exit(1)
     
-    table = sys.argv[1]
+    tables = sys.argv[1:]
     valid_tables = ['table1', 'table2', 'table3']
-    if table not in valid_tables:
-        print(f"Invalid table '{table}'. Valid options: {', '.join(valid_tables)}")
+    invalid_tables = []
+    for table in tables:
+        if table not in valid_tables:
+            invalid_tables.append(table)
+    
+    if invalid_tables:
+        print(f"Invalid table(s) {', '.join(invalid_tables)}. Valid options: {', '.join(valid_tables)}")
         sys.exit(1)
     
     action_client = FoodDeliveryActionClient()
@@ -76,10 +86,10 @@ def main(args=None):
     while not action_client._action_client.wait_for_server(timeout_sec=1.0):
         action_client.get_logger().info('Waiting for action server to be available...')
 
-    # Send a goal to the specified table
-    action_client.send_goal(table)
+    # Send goals for the valid tables
+    action_client.send_goals_for_tables(tables)
 
-    rclpy.spin(action_client)
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

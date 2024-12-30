@@ -1,4 +1,4 @@
-string location 
+string[] location
 ---
 bool success  
 ---
