@@ -53,7 +53,6 @@ class FoodDeliveryActionClient(Node):
             self.get_logger().info("Delivery was successful!")
         else:
             self.get_logger().info("Delivery failed.")
-        rclpy.shutdown()
 
     def send_goals_for_tables(self, tables):
         self.send_goal(tables)
