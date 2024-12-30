@@ -19,6 +19,12 @@ The Butlerbot project aims to develop a robotic butler designed to operate in a 
 
 4) When an order is received with the table number, the robot should move from home to start its task. If a task is canceled while going to the table, the robot returns to the kitchen and then to home and if canceled while going to the kitchen, the robot will return to home. [[view demonstration video]](https://drive.google.com/file/d/11o15Xs0OAY1DO8EsMbIejADBAhjIUT9I/view?usp=drive_link)
 
+5)  When multiple orders are received with the table numbers, the robot should move from home position to kitchen to collect the orders and move to multiple tables for the food delivery. After completion of that task (delivery of all the tables) the robot should return to the home position. [[view demonstration video for senario 5]](https://drive.google.com/file/d/1q1kwMp0YcTrdVGgLj8N6BATuN7Ld8XM7/view?usp=drive_link)
+
+6) When multiple orders are received with the table numbers (let us assume table1, table2, table3), the robot should move from home position to kitchen to collect the orders and move to multiple tables for the food delivery. When no one confirms in table1 the robot should move to the next tables (table2, table3) for delivery. After finishing the delivery of the final table, the robot goes to the kitchen before going to the home position.[[view demonstration video for senario 6]](https://drive.google.com/file/d/1WoJCjgouTvksiuEOJl5VbvDxPWR4REC_/view?usp=drive_link)
+
+7) When multiple orders are received with the table numbers (let us assume table1, table2, table3), the robot should move from home position to kitchen to collect the orders and move to multiple tables for the food delivery. The order of the particular table (table2) is canceled, the robot should skip that table (table2) and deliver to the other tables (table1, table3). After finishing the delivery of the final table, the robot goes to the kitchen before going to the home position. [[view demonstration video for senario 7]](https://drive.google.com/file/d/1IIGXRNhsrMLNXXNNVei3R1VDQ9h4-yCk/view?usp=drive_link)
+
 
 ## Environment setup
 
