@@ -82,7 +82,24 @@ ros2 run butlerbot_tasks give_goal.py table2
 
 ## Processes
 
-### Mapping
+### Mapping (SLAM_TOOLBOX)
+![alt text](docs/assets/mapping.png)
+
+Steps to run this
+
+1. Launch the gazebo simulation environment
+```
+ros2 launch butlerbot_rmf_gazebo simulation.launch.py
+```
+
+2. Launch the slam process
+- You can choose to use async or sync method by setting `sync:=` true or flase
+- You have to modes in `slam_toolbox` either `mapping` or `localization`, you can change between them here by setting `localization:=` true or false.
+```
+ros2 launch butlerbot_localization slam_online_sync.launch.py sync:=true localization:=false
+```
+
+### Localization (SLAM_TOOLBOX)
 ![alt text](docs/assets/mapping_rmf.png)
 
 Steps to run this
@@ -93,6 +110,8 @@ ros2 launch butlerbot_rmf_gazebo simulation.launch.py
 ```
 
 2. Launch the slam process
+- You can choose to use async or sync method by setting `sync:=` true or flase
+- You have to modes in `slam_toolbox` either `mapping` or `localization`, you can change between them here by setting `localization:=` true or false.
 ```
-ros2 launch butlerbot_localization slam_online_sync.launch.py
+ros2 launch butlerbot_localization slam_online_sync.launch.py sync:=true localization:=true
 ```
